@@ -226,7 +226,7 @@ git add <resolved-files>
 git commit
 ```
 
-This applies when a merge stops for conflicts and Git expects you to complete the merge commit after resolving and staging all conflicted files.
+This applies when a merge stops for conflicts and Git expects you to complete the merge commit after resolving and staging all conflicted files. Some workflows may prompt you to use `git merge --continue` instead.
 
 ### Abort a merge
 ```bash
