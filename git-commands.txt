@@ -1,0 +1,504 @@
+GIT RECOVERY & BRANCH WORKFLOW CHEAT SHEET
+=============================================
+
+For Azure DevOps / Git branch work.
+
+IMPORTANT:
+- Replace <branch-name> with your actual branch, e.g. bug-fixing.
+- Replace <commit-hash> with the target commit hash.
+- Be especially careful with: git reset --hard, git push --force, git push --force-with-lease.
+- When unsure, stop and run: git status
+
+------------------------------------------------------------
+1. BEFORE DOING ANYTHING DESTRUCTIVE
+------------------------------------------------------------
+
+Run:
+
+git status
+git branch --show-current
+git log --oneline --decorate --graph -10
+
+If the remote matters:
+
+git fetch origin
+git log --oneline --decorate --graph origin/<branch-name> -10
+
+
+------------------------------------------------------------
+2. I JUST DID "git pull" AND WANT TO UNDO IT
+------------------------------------------------------------
+
+If you have not made new commits after the pull:
+
+git reset --hard ORIG_HEAD
+
+This takes the branch back to the state immediately before the pull.
+
+If you had uncommitted changes before the pull, be careful with --hard.
+
+Safer approach:
+
+git status
+git stash
+git reset --hard ORIG_HEAD
+git stash pop
+
+
+------------------------------------------------------------
+3. I PULLED, MADE COMMITS, BUT "git push" SAYS NON-FAST-FORWARD
+------------------------------------------------------------
+
+Typical error:
+
+! [rejected] ... (non-fast-forward)
+
+Safe procedure:
+
+git status
+git fetch origin
+git stash
+git rebase origin/<branch-name>
+
+If there are conflicts:
+
+git status
+
+Resolve the conflicted files, then:
+
+git add <resolved-file>
+git rebase --continue
+
+Repeat until the rebase finishes.
+
+Then restore your uncommitted changes:
+
+git stash pop
+
+Finally:
+
+git push origin <branch-name>
+
+To cancel the rebase:
+
+git rebase --abort
+
+
+------------------------------------------------------------
+4. I WANT TO MOVE MY BRANCH BACK TO AN OLDER COMMIT
+------------------------------------------------------------
+
+Find the commit:
+
+git log --oneline --graph
+
+Then reset the LOCAL branch:
+
+git reset --hard <commit-hash>
+
+Example:
+
+git reset --hard 92d2a1e9
+
+This only changes your local branch.
+
+
+------------------------------------------------------------
+5. I WANT THE REMOTE BRANCH TO ALSO GO BACK
+------------------------------------------------------------
+
+This rewrites remote branch history.
+
+Step 1 - switch to the branch:
+
+git switch <branch-name>
+
+Step 2 - get latest remote information:
+
+git fetch origin
+
+Step 3 - find the target commit:
+
+git log --oneline --graph --decorate --all
+
+Step 4 - IMPORTANT: see commits that will be removed from the branch:
+
+git log <commit-hash>..origin/<branch-name> --oneline
+
+Step 5 - reset local branch:
+
+git reset --hard <commit-hash>
+
+Step 6 - verify local branch:
+
+git log -1 --oneline
+
+Step 7 - update remote:
+
+git push --force-with-lease origin <branch-name>
+
+Step 8 - verify remote:
+
+git fetch origin
+git log -1 --oneline origin/<branch-name>
+
+Prefer --force-with-lease instead of --force.
+
+Example from the recent bug-fixing case:
+
+git switch bug-fixing
+git fetch origin
+git log --oneline --graph --decorate --all
+git log 92d2a1e9..origin/bug-fixing --oneline
+git reset --hard 92d2a1e9
+git push --force-with-lease origin bug-fixing
+git fetch origin
+git log -1 --oneline origin/bug-fixing
+
+
+------------------------------------------------------------
+6. I WANT TO DISCARD LOCAL UNCOMMITTED CHANGES
+------------------------------------------------------------
+
+Discard one file:
+
+git restore <file>
+
+Example:
+
+git restore job/update_child_entities/helpers/process.js
+
+Discard ALL uncommitted changes:
+
+git restore .
+
+WARNING: This permanently removes those uncommitted changes.
+
+If unsure, use stash instead:
+
+git stash
+
+
+------------------------------------------------------------
+7. I WANT TO TEMPORARILY SAVE MY CHANGES
+------------------------------------------------------------
+
+Save changes:
+
+git stash push -m "My changes"
+
+See stashes:
+
+git stash list
+
+Restore and remove the latest stash:
+
+git stash pop
+
+Apply a specific stash without deleting it:
+
+git stash apply stash@{0}
+
+
+------------------------------------------------------------
+8. I ACCIDENTALLY COMMITTED SOMETHING LOCALLY
+------------------------------------------------------------
+
+If it has NOT been pushed:
+
+Undo the commit but KEEP changes staged:
+
+git reset --soft HEAD~1
+
+Undo the commit and KEEP changes unstaged:
+
+git reset HEAD~1
+
+Completely delete the commit and its changes:
+
+git reset --hard HEAD~1
+
+WARNING: --hard can permanently remove local changes.
+
+
+------------------------------------------------------------
+9. I WANT TO MODIFY THE LAST COMMIT
+------------------------------------------------------------
+
+Modify the last commit:
+
+git add .
+git commit --amend
+
+Change only the commit message:
+
+git commit --amend -m "New commit message"
+
+
+------------------------------------------------------------
+10. I WANT TO SEE WHAT CHANGED BETWEEN LOCAL AND REMOTE
+------------------------------------------------------------
+
+First:
+
+git fetch origin
+
+See file differences:
+
+git diff HEAD origin/<branch-name>
+
+See commits on REMOTE but not LOCAL:
+
+git log HEAD..origin/<branch-name> --oneline
+
+See commits LOCAL but not REMOTE:
+
+git log origin/<branch-name>..HEAD --oneline
+
+
+------------------------------------------------------------
+11. I WANT TO UPDATE MY BRANCH WITH LATEST REMOTE CHANGES
+------------------------------------------------------------
+
+If you have no uncommitted changes:
+
+git fetch origin
+git rebase origin/<branch-name>
+
+Then:
+
+git push origin <branch-name>
+
+Alternatively:
+
+git pull origin <branch-name>
+
+Understand whether you want a merge or rebase before using git pull.
+
+
+------------------------------------------------------------
+12. REBASE GIVES ME CONFLICTS
+------------------------------------------------------------
+
+Check:
+
+git status
+
+Open the conflicted files.
+
+You may see:
+
+<<<<<<< HEAD
+Remote version
+=======
+Your version
+>>>>>>> commit
+
+Decide what the final code should be.
+
+Remove the conflict markers:
+
+<<<<<<<
+=======
+>>>>>>>
+
+Then stage the resolved files:
+
+git add <file>
+
+Continue:
+
+git rebase --continue
+
+Repeat until the rebase finishes.
+
+To abandon the rebase:
+
+git rebase --abort
+
+IMPORTANT:
+While a rebase is in progress, do not run a normal git push or reset unless you know exactly why.
+
+
+------------------------------------------------------------
+13. I WANT TO CREATE A NEW BRANCH FROM A SPECIFIC COMMIT
+------------------------------------------------------------
+
+git switch -c <branch-name> <commit-hash>
+
+Example:
+
+git switch -c bug-fixing 92d2a1e9
+
+Publish it:
+
+git push -u origin <branch-name>
+
+
+------------------------------------------------------------
+14. I DELETED A COMMIT OR BRANCH AND NEED TO RECOVER IT
+------------------------------------------------------------
+
+Git often keeps previous positions in the reflog.
+
+Run:
+
+git reflog
+
+Find the required commit/hash.
+
+Then, if appropriate:
+
+git reset --hard <commit-hash>
+
+Example:
+
+git reset --hard 92d2a1e9
+
+
+------------------------------------------------------------
+15. I WANT TO COMPARE TWO BRANCHES
+------------------------------------------------------------
+
+Compare file changes:
+
+git diff bug-fixing..main
+
+See commits that are on main but not bug-fixing:
+
+git log bug-fixing..main --oneline
+
+
+------------------------------------------------------------
+16. I WANT TO KNOW WHERE MY BRANCH IS
+------------------------------------------------------------
+
+Run:
+
+git branch -vv
+
+This can show something like:
+
+* bug-fixing 92d2a1e9 [origin/bug-fixing] Bug 56208...
+
+This is useful for Azure DevOps branches.
+
+
+------------------------------------------------------------
+17. SAFE FORCE PUSH
+------------------------------------------------------------
+
+Preferred:
+
+git push --force-with-lease origin <branch-name>
+
+Avoid unless you completely understand the consequences:
+
+git push --force
+
+Why --force-with-lease is safer:
+It checks that the remote branch has not changed unexpectedly since your last fetch.
+
+
+------------------------------------------------------------
+18. MOST IMPORTANT WORKFLOW: ROLLBACK LOCAL + REMOTE BRANCH
+------------------------------------------------------------
+
+Use this when you want both your local and Azure DevOps remote branch to point to an older commit.
+
+1. Switch to the branch:
+
+git switch <branch-name>
+
+2. Fetch remote:
+
+git fetch origin
+
+3. Find target commit:
+
+git log --oneline --graph --decorate --all
+
+4. Check what commits would be removed:
+
+git log <commit-hash>..origin/<branch-name> --oneline
+
+5. Reset local:
+
+git reset --hard <commit-hash>
+
+6. Verify local:
+
+git log -1 --oneline
+
+7. Update remote:
+
+git push --force-with-lease origin <branch-name>
+
+8. Verify remote:
+
+git fetch origin
+git log -1 --oneline origin/<branch-name>
+
+
+------------------------------------------------------------
+19. VERY IMPORTANT COMMANDS TO TREAT WITH CAUTION
+------------------------------------------------------------
+
+git reset --hard
+    Can destroy local uncommitted changes.
+
+git push --force
+    Can overwrite remote branch history.
+
+git push --force-with-lease
+    Rewrites remote history, but has protection against overwriting
+    unexpected newer remote changes.
+
+When unsure, first run:
+
+git status
+git fetch origin
+git log --oneline --decorate --graph --all -10
+
+------------------------------------------------------------
+20. QUICK DECISION GUIDE
+------------------------------------------------------------
+
+"I just pulled and want to undo it"
+    -> git reset --hard ORIG_HEAD
+
+"I have uncommitted changes and need to temporarily save them"
+    -> git stash
+
+"Push says non-fast-forward"
+    -> git fetch origin
+    -> git stash (if needed)
+    -> git rebase origin/<branch-name>
+    -> resolve conflicts
+    -> git rebase --continue
+    -> git stash pop
+    -> git push
+
+"I want my LOCAL branch at an old commit"
+    -> git reset --hard <commit-hash>
+
+"I want LOCAL + REMOTE branch at an old commit"
+    -> git reset --hard <commit-hash>
+    -> git push --force-with-lease origin <branch-name>
+
+"I am in the middle of a rebase and want to cancel"
+    -> git rebase --abort
+
+"I want to recover an old commit"
+    -> git reflog
+
+"I am unsure what will happen"
+    -> STOP
+    -> git status
+    -> git fetch origin
+    -> git log --oneline --decorate --graph --all -10
+
+
+------------------------------------------------------------
+END
+------------------------------------------------------------
