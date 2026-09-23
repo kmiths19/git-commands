@@ -222,7 +222,7 @@ git rebase <branch-name>
 
 ### Complete a merge after resolving conflicts
 ```bash
-git add <resolved-file-1> <resolved-file-2>
+git add <resolved-files>
 git commit
 ```
 
