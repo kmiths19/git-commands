@@ -220,16 +220,25 @@ git merge <branch-name>
 git rebase <branch-name>
 ```
 
-### Resolve merge conflicts
+### Continue a merge after resolving conflicts
 ```bash
 git add <resolved-file>
 git commit
+```
+
+### Abort a merge
+```bash
 git merge --abort
 ```
 
-### Resolve rebase conflicts
+### Continue a rebase after resolving conflicts
 ```bash
+git add <resolved-file>
 git rebase --continue
+```
+
+### Abort a rebase
+```bash
 git rebase --abort
 ```
 
