@@ -119,7 +119,10 @@ git fetch --all
 ```bash
 git pull
 git pull origin main
+git pull --rebase origin main
 ```
+
+`git pull` fetches and then merges by default. Use `git pull --rebase` when you want to keep a linear history.
 
 ### Push changes
 ```bash
@@ -140,6 +143,8 @@ git restore --staged <file>
 git restore <file>
 ```
 
+Warning: this permanently removes uncommitted changes in the selected file.
+
 ### Amend the last commit
 ```bash
 git commit --amend
@@ -151,6 +156,8 @@ git reset --soft HEAD~1
 git reset --mixed HEAD~1
 git reset --hard HEAD~1
 ```
+
+Warning: `git reset --hard` removes committed, staged, and working tree changes that are not preserved elsewhere.
 
 ### Revert a commit safely
 ```bash
@@ -179,7 +186,7 @@ git stash list
 ```bash
 git stash apply
 git stash pop
-git stash drop
+git stash drop stash@{0}
 ```
 
 ## 7. Tagging Commands
@@ -215,6 +222,7 @@ git rebase <branch-name>
 
 ### Continue or abort during conflicts
 ```bash
+git merge --continue
 git merge --abort
 git rebase --continue
 git rebase --abort
