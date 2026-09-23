@@ -220,11 +220,13 @@ git merge <branch-name>
 git rebase <branch-name>
 ```
 
-### Finish a standard merge after resolving conflicts
+### Finish a non-fast-forward merge after resolving conflicts
 ```bash
 git add <resolved-file>
 git commit
 ```
+
+This applies when a merge stops for conflicts and Git expects you to complete the merge commit after resolving them.
 
 ### Abort a merge
 ```bash
@@ -281,7 +283,7 @@ Warning: `git clean -fd` permanently deletes untracked files and directories.
 
 ### Compare branches
 ```bash
-git diff <base-branch>..<feature-branch>
+git diff <base-branch> <feature-branch>
 ```
 
 ### Create a temporary worktree
