@@ -223,11 +223,9 @@ git rebase <branch-name>
 ### Resolve merge conflicts
 ```bash
 git add <resolved-file>
-git merge --continue
+git commit
 git merge --abort
 ```
-
-If your Git version or workflow does not use `git merge --continue`, stage the resolved files and finish with `git commit`.
 
 ### Resolve rebase conflicts
 ```bash
