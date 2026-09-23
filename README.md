@@ -122,7 +122,7 @@ git pull origin <default-branch>
 git pull --rebase origin <default-branch>
 ```
 
-`git pull` fetches and then merges by default. Use `git pull --rebase` when you want to keep a linear history.
+`git pull` usually fetches and then merges unless your Git configuration is set to rebase on pull. Use `git pull --rebase` when you want to keep a linear history.
 
 ### Push changes
 ```bash
@@ -220,7 +220,7 @@ git merge <branch-name>
 git rebase <branch-name>
 ```
 
-### Finish a non-fast-forward merge after resolving conflicts
+### Complete a merge after resolving conflicts
 ```bash
 git add <resolved-file>
 git commit
