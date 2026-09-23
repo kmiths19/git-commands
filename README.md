@@ -223,7 +223,7 @@ git rebase <branch-name>
 ### Continue a merge after resolving conflicts
 ```bash
 git add <resolved-file>
-git commit
+git merge --continue
 ```
 
 ### Abort a merge
@@ -259,7 +259,7 @@ git blame <file>
 git log --grep="keyword"
 ```
 
-### View file changes across commits
+### View commit history for a file
 ```bash
 git log -- <file>
 ```
