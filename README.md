@@ -220,11 +220,17 @@ git merge <branch-name>
 git rebase <branch-name>
 ```
 
-### Continue or abort during conflicts
+### Resolve merge conflicts
 ```bash
 git add <resolved-file>
-git commit
+git merge --continue
 git merge --abort
+```
+
+If your Git version or workflow does not use `git merge --continue`, stage the resolved files and finish with `git commit`.
+
+### Resolve rebase conflicts
+```bash
 git rebase --continue
 git rebase --abort
 ```
@@ -263,6 +269,8 @@ git cherry-pick <commit-hash>
 git clean -n
 git clean -fd
 ```
+
+Warning: `git clean -fd` permanently deletes untracked files and directories.
 
 ### Compare branches
 ```bash
