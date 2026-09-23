@@ -222,7 +222,8 @@ git rebase <branch-name>
 
 ### Continue or abort during conflicts
 ```bash
-git merge --continue
+git add <resolved-file>
+git commit
 git merge --abort
 git rebase --continue
 git rebase --abort
