@@ -223,10 +223,10 @@ git rebase <branch-name>
 ### Complete a merge after resolving conflicts
 ```bash
 git add <resolved-files>
-git merge --continue
+git commit
 ```
 
-This applies when a merge stops for conflicts and Git expects you to complete the merge after resolving and staging all conflicted files. In workflows that finish the merge by creating the merge commit directly, use `git commit` as the lower-level equivalent.
+This applies when a merge stops for conflicts and Git expects you to complete the merge commit after resolving and staging all conflicted files.
 
 ### Abort a merge
 ```bash
