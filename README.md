@@ -118,8 +118,8 @@ git fetch --all
 ### Pull latest changes
 ```bash
 git pull
-git pull origin main
-git pull --rebase origin main
+git pull origin <default-branch>
+git pull --rebase origin <default-branch>
 ```
 
 `git pull` fetches and then merges by default. Use `git pull --rebase` when you want to keep a linear history.
@@ -265,7 +265,7 @@ git clean -fd
 
 ### Compare branches
 ```bash
-git diff main..feature-branch
+git diff <base-branch>..<feature-branch>
 ```
 
 ### Create a temporary worktree
